@@ -1,0 +1,46 @@
+services:
+  backend:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - PG_STRING=postgresql://postgres:postgres@db:5432/eduflash
+    networks:
+      - cloudflared
+      - local
+
+  database:
+    image: postgres:15.15
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=eduflash
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - local
+
+
+#   # Zero Trust tunnel
+#   cloudflared:
+#     image: cloudflare/cloudflared
+#     container_name: cloudflared
+#     environment:
+#       - TZ=Asia/Jakarta
+#       - TUNNEL_TOKEN=${TOKEN}
+#     restart: unless-stopped
+#     command: tunnel --no-autoupdate run
+#     networks:
+#       - cloudflared
+
+networks:
+  cloudflared:
+    name: cloudflared
+  local:
+    name: local
+
+volumes:
+  postgresql_data:

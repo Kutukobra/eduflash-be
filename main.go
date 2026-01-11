@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/WikiScrolls/pagerank/app"
-	"github.com/WikiScrolls/pagerank/app/config"
+	"github.com/Kutukobra/eduflash-be/app"
+	"github.com/Kutukobra/eduflash-be/app/config"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,6 +23,6 @@ func main() {
 	router := gin.Default()
 	app.Routes(router)
 
-	router.Run(":" + cfg.AppPort)
-	fmt.Println("Pagerank Running on Port :" + cfg.AppPort)
+	router.Run(":" + cfg.appPort)
+	fmt.Println("Pagerank Running on Port :" + cfg.appPort)
 }

@@ -1,33 +1,15 @@
 package app
 
 import (
-	"github.com/WikiScrolls/pagerank/app/handler"
 	"github.com/gin-gonic/gin"
 )
 
 func (a *App) Routes(router *gin.Engine) {
-	api := router.Group("/api")
+	api := router.Group("/api/v1")
 	{
-		recommendation := api.Group("/recommendation")
-		{
-			h := handler.NewRecommendationHandler(&a.RecommendationService)
-			recommendation.GET("/:userId", h.GetRecommendations) // Get recommendations for user ID
-			recommendation.GET("/random", h.GetRandomArticles)   // Random articles
-		}
-
-		article := api.Group("/articles")
-		{
-			h := handler.NewArticleHandler(&a.ArticleService)
-			article.GET("/search", h.SearchArticles)         // Search and return articles by ?keyword
-			article.GET("/:id/summary", h.GetArticleSummary) // Summarize article id with AI
-			article.POST("/:id/like", h.LikeArticle)         // Like article id for user ?userId
-			article.POST("/:id/open", h.OpenArticle)         // Open article id for user ?userId
-		}
-
 		user := api.Group("/user")
 		{
-			h := handler.NewUserHandler(&a.UserService)
-			user.POST("/", h.RegisterUser) // Register user to recommender with body format {"id": userId, "interests": ["interest1", "interest2", ...]}
+			user.GET("/")
 		}
 	}
 }
