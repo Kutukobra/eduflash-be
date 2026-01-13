@@ -9,7 +9,12 @@ func (a *App) Routes(router *gin.Engine) {
 	{
 		user := api.Group("/user")
 		{
-			user.GET("/")
+			//?email
+			user.GET("/", a.userHandler.GetUserByEmail)
+			//BODY: {email, username, password, role}
+			user.POST("/register", a.userHandler.RegisterUser)
+			//BODY: {email, password}
+			user.POST("/login", a.userHandler.LoginUser)
 		}
 	}
 }

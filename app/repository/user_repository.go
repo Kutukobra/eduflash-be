@@ -9,15 +9,11 @@ import (
 )
 
 type UserRepository interface {
-	GetUserByEmail(ctx context.Context, email string)
+	GetUserByEmail(ctx context.Context, email string) (*model.User, error)
 	RegisterUser(
 		ctx context.Context,
-		username string, email string, password string, role model.RoleEnum,
-	)
-	LoginUser(
-		ctx context.Context,
-		email string, password string,
-	)
+		username string, email string, password string, role string,
+	) (*model.User, error)
 }
 
 type PGUserRepository struct {
@@ -25,20 +21,10 @@ type PGUserRepository struct {
 }
 
 func rowToUser(row pgx.Row) (*model.User, error) {
-	var roleString string
 	var user model.User
-	err := row.Scan(&user.Username, &user.Email, &user.Password, &roleString)
+	err := row.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Role)
 	if err != nil {
 		return nil, err
-	}
-
-	switch roleString {
-	case "Student":
-		user.Role = model.Student
-	case "Teacher":
-		user.Role = model.Teacher
-	case "Admin":
-		user.Role = model.Admin
 	}
 
 	return &user, nil
@@ -56,17 +42,8 @@ func (r *PGUserRepository) GetUserByEmail(ctx context.Context, email string) (*m
 
 func (r *PGUserRepository) RegisterUser(
 	ctx context.Context,
-	username string, email string, password string, role model.RoleEnum,
+	username string, email string, password string, role string,
 ) (*model.User, error) {
-	var roleString string
-	switch role {
-	case model.Teacher:
-		roleString = "Teacher"
-	case model.Student:
-		roleString = "Student"
-	case model.Admin:
-		roleString = "Admin"
-	}
 
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), 0)
 	if err != nil {
@@ -75,28 +52,12 @@ func (r *PGUserRepository) RegisterUser(
 
 	query := `
 		INSERT INTO Users (Username, Email, Password, Role) 
-		VALUES ($1, $2, $3) RETURNING ID, Username, Email, Password, Role`
+		VALUES ($1, $2, $3, $4) RETURNING ID, Username, Email, Password, Role`
 
 	row := r.driver.QueryRow(
 		ctx, query,
-		username, passwordHash, roleString,
+		username, email, passwordHash, role,
 	)
 
 	return rowToUser(row)
-}
-
-func (r *PGUserRepository) LoginUser(ctx context.Context, email string, password string) (*model.User, error) {
-	userData, err := r.GetUserByEmail(ctx, email)
-	if err != nil {
-		return nil, err
-	}
-
-	err = bcrypt.CompareHashAndPassword([]byte(userData.Password), []byte(password))
-	if err != nil {
-		return nil, err
-	}
-
-	userData.Password = "" // clean so no exposed hash
-
-	return userData, nil
 }

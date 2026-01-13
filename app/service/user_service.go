@@ -1,0 +1,69 @@
+package service
+
+import (
+	"context"
+	"errors"
+
+	"github.com/Kutukobra/eduflash-be/app/model"
+	"github.com/Kutukobra/eduflash-be/app/repository"
+	"golang.org/x/crypto/bcrypt"
+)
+
+type UserService struct {
+	repo repository.UserRepository
+}
+
+var ErrInvalidRole = errors.New("invalid role")
+
+func ValidateRole(role string) error {
+	switch role {
+	case "admin", "user", "teacher":
+		return nil
+	default:
+		return ErrInvalidRole
+	}
+}
+
+func NewUserService(repo repository.UserRepository) *UserService {
+	return &UserService{
+		repo: repo,
+	}
+}
+
+func (s *UserService) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
+	userData, err := s.repo.GetUserByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+
+	return userData, nil
+}
+
+func (s *UserService) RegisterUser(ctx context.Context, email string, username string, password string, role string) (*model.User, error) {
+	if err := ValidateRole(role); err != nil {
+		return nil, err
+	}
+
+	userData, err := s.repo.RegisterUser(ctx, username, email, password, role)
+	if err != nil {
+		return nil, err
+	}
+
+	return userData, nil
+}
+
+func (s *UserService) LoginUser(ctx context.Context, email string, password string) (*model.User, error) {
+	userData, err := s.repo.GetUserByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(userData.Password), []byte(password))
+	if err != nil {
+		return nil, err
+	}
+
+	userData.Password = "" // clean so no exposed hash
+
+	return userData, nil
+}

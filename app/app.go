@@ -3,9 +3,13 @@ package app
 import (
 	"github.com/Kutukobra/eduflash-be/app/config"
 	"github.com/Kutukobra/eduflash-be/app/database"
+	"github.com/Kutukobra/eduflash-be/app/handler"
+	"github.com/Kutukobra/eduflash-be/app/repository"
+	"github.com/Kutukobra/eduflash-be/app/service"
 )
 
 type App struct {
+	userHandler *handler.UserHandler
 }
 
 func New(cfg *config.Config) (*App, error) {
@@ -14,5 +18,11 @@ func New(cfg *config.Config) (*App, error) {
 		return nil, err
 	}
 
-	return &App{}, nil
+	userRepository := repository.NewPGUserRepository(PGDatabase)
+	userService := service.NewUserService(userRepository)
+	userHandler := handler.NewUserHandler(userService)
+
+	return &App{
+		userHandler: userHandler,
+	}, nil
 }

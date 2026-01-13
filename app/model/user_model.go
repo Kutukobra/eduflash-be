@@ -1,17 +1,9 @@
 package model
 
-type RoleEnum int
-
-const (
-	Student = iota
-	Teacher
-	Admin
-)
-
 type User struct {
-	ID       string
-	Username string
-	Email    string
-	Password string
-	Role     RoleEnum
+	ID       string `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Role     string `json:"role"`
 }
