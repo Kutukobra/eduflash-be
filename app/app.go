@@ -10,6 +10,7 @@ import (
 
 type App struct {
 	userHandler *handler.UserHandler
+	roomHandler *handler.RoomHandler
 }
 
 func New(cfg *config.Config) (*App, error) {
@@ -22,7 +23,12 @@ func New(cfg *config.Config) (*App, error) {
 	userService := service.NewUserService(userRepository)
 	userHandler := handler.NewUserHandler(userService)
 
+	roomRepository := repository.NewPGRoomRepository(PGDatabase)
+	roomService := service.NewRoomService(roomRepository)
+	roomHandler := handler.NewRoomHandler(roomService)
+
 	return &App{
 		userHandler: userHandler,
+		roomHandler: roomHandler,
 	}, nil
 }

@@ -16,5 +16,11 @@ func (a *App) Routes(router *gin.Engine) {
 			//BODY: {email, password}
 			user.POST("/login", a.userHandler.LoginUser)
 		}
+
+		room := api.Group("/room")
+		{
+			//?ownerId
+			room.POST("/create", a.roomHandler.CreateRoom)
+		}
 	}
 }
