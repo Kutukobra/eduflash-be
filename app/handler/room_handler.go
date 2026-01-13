@@ -48,10 +48,9 @@ func (h *RoomHandler) JoinRoom(c *gin.Context) {
 
 	err := h.serv.JoinRoom(ctx, room_id)
 	if err != nil {
-		c.Status(http.StatusOK)
-		return
-	} else {
 		c.Status(http.StatusBadRequest)
 		return
 	}
+
+	c.Status(http.StatusOK)
 }

@@ -21,6 +21,8 @@ func (a *App) Routes(router *gin.Engine) {
 		{
 			//?ownerId
 			room.POST("/create", a.roomHandler.CreateRoom)
+			//?roomId
+			room.GET("/join", a.roomHandler.JoinRoom)
 		}
 	}
 }

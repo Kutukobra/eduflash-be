@@ -47,7 +47,7 @@ func (r *PGRoomRepository) CreateRoom(
 func (r *PGRoomRepository) GetRoomById(ctx context.Context, id string) (*model.Room, error) {
 	query := `SELECT * FROM Rooms WHERE Id = $1`
 
-	row := r.driver.QueryRow(ctx, query)
+	row := r.driver.QueryRow(ctx, query, id)
 
 	return rowToRoom(row)
 }
