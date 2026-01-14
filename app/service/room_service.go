@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"math/rand"
 
 	"github.com/Kutukobra/eduflash-be/app/model"
 	"github.com/Kutukobra/eduflash-be/app/repository"
@@ -11,24 +12,41 @@ import (
 type RoomService struct {
 	room_count int32
 	repo       repository.RoomRepository
+	checkId    map[int]bool
 }
 
 func NewRoomService(repo repository.RoomRepository) *RoomService {
 	return &RoomService{
 		repo:       repo,
 		room_count: 0,
+		checkId:    make(map[int]bool),
 	}
 }
 
-func (s *RoomService) CreateRoom(ctx context.Context, owner_id string) (*model.Room, error) {
-	id_string := fmt.Sprintf("%06d", s.room_count)
-	s.room_count++
+func (s *RoomService) generateRoomId() string {
+	r := rand.New(rand.NewSource(int64(s.room_count)))
 
-	room, err := s.repo.CreateRoom(ctx, id_string, owner_id)
+	var room_id int
+	for {
+		room_id = r.Intn(999999)
+		if !s.checkId[room_id] {
+			s.checkId[room_id] = true
+			break
+		}
+	}
+
+	id_string := fmt.Sprintf("%06d", room_id)
+	s.room_count++
+	return id_string
+}
+
+func (s *RoomService) CreateRoom(ctx context.Context, roomName string, owner_id string) (*model.Room, error) {
+	id_string := s.generateRoomId()
+
+	room, err := s.repo.CreateRoom(ctx, id_string, roomName, owner_id)
 	if err != nil {
 		return nil, err
 	}
-	s.room_count += 7
 	return room, nil
 }
 

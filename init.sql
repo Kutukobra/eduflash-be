@@ -10,6 +10,7 @@ CREATE TABLE  Users (
 
 CREATE TABLE Rooms (
     id TEXT PRIMARY KEY NOT NULL UNIQUE,
+    room_name TEXT,
     owner_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );
 

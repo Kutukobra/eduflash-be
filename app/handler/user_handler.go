@@ -49,8 +49,6 @@ func (h *UserHandler) GetRoomsByOwnerId(c *gin.Context) {
 		return
 	}
 
-	log.Println(owner_id)
-
 	rooms, err := h.serv.GetRoomsByOwnerId(ctx, owner_id)
 	if err != nil {
 		c.Error(err)

@@ -1,8 +1,9 @@
 package model
 
 type Room struct {
-	ID       string `json:"id"`
-	Owner_ID string `json:"owner_id"`
+	ID        string `json:"id"`
+	Room_Name string `json:"room_name"`
+	Owner_ID  string `json:"owner_id"`
 }
 
 type RoomStudent struct {

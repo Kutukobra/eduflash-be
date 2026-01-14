@@ -2,14 +2,13 @@ package repository
 
 import (
 	"context"
-	"log"
 
 	"github.com/Kutukobra/eduflash-be/app/model"
 	"github.com/jackc/pgx/v5"
 )
 
 type RoomRepository interface {
-	CreateRoom(ctx context.Context, id string, owner_id string) (*model.Room, error)
+	CreateRoom(ctx context.Context, id string, roomName string, owner_id string) (*model.Room, error)
 	GetRoomById(ctx context.Context, id string) (*model.Room, error)
 	GetRoomsByOwnerId(ctx context.Context, owner_id string) ([]model.Room, error)
 	JoinRoom(ctx context.Context, room_id string, student_name string) (*model.RoomStudent, error)
@@ -22,7 +21,7 @@ type PGRoomRepository struct {
 
 func rowToRoom(row pgx.Row) (*model.Room, error) {
 	var room model.Room
-	err := row.Scan(&room.ID, &room.Owner_ID)
+	err := row.Scan(&room.ID, &room.Room_Name, &room.Owner_ID)
 	if err != nil {
 		return nil, err
 	}
@@ -46,14 +45,14 @@ func NewPGRoomRepository(driver *pgx.Conn) *PGRoomRepository {
 
 func (r *PGRoomRepository) CreateRoom(
 	ctx context.Context,
-	id string, owner_id string,
+	id string, roomName string, owner_id string,
 ) (*model.Room, error) {
 	query := `
-		INSERT INTO Rooms (Id, Owner_id)
-		VALUES ($1, $2) RETURNING Id, Owner_Id`
+		INSERT INTO Rooms (Id, Room_Name, Owner_id)
+		VALUES ($1, $2, $3) RETURNING Id, Room_Name, Owner_Id`
 
 	row := r.driver.QueryRow(
-		ctx, query, id, owner_id,
+		ctx, query, id, roomName, owner_id,
 	)
 	return rowToRoom(row)
 }
@@ -67,8 +66,6 @@ func (r *PGRoomRepository) GetRoomById(ctx context.Context, id string) (*model.R
 }
 
 func (r *PGRoomRepository) GetRoomsByOwnerId(ctx context.Context, owner_id string) ([]model.Room, error) {
-	log.Println(owner_id)
-
 	query := `SELECT id, owner_id FROM Rooms WHERE Owner_id = $1`
 
 	rows, err := r.driver.Query(ctx, query, owner_id)
