@@ -5,11 +5,11 @@ INSERT INTO Users (Username, Email,  Password, Role)
 VALUES ($1, $2, $3, $4);
 
 
-INSERT INTO Rooms (Id, Owner_id)
-VALUES ($1, $2) RETURNING Id, Owner_id;
+INSERT INTO Rooms (Id, Room_Name, Owner_id)
+VALUES ($1, $2, $3) RETURNING Id, Room_Name, Owner_id;
 
 SELECT * FROM Rooms WHERE Id = $1;
 
-SELECT * FROM Rooms WHERE Owner_id = $1;
+SELECT id, room_name, owner_id FROM Rooms WHERE Owner_id = $1;
 
 INSERT INTO RoomStudent (Room_Id, Student_Name) 

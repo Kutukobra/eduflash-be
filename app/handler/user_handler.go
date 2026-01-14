@@ -7,6 +7,7 @@ import (
 
 	"github.com/Kutukobra/eduflash-be/app/service"
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -106,6 +107,13 @@ func (h *UserHandler) LoginUser(c *gin.Context) {
 	userData, err := h.serv.LoginUser(ctx, requestData.Email, requestData.Password)
 	if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Incorrect password."})
+		return
+	} else if errors.Is(err, pgx.ErrNoRows) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "User not found."})
+		return
+	} else if err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to login."})
 		return
 	}
 

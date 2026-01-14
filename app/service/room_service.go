@@ -24,6 +24,7 @@ func NewRoomService(repo repository.RoomRepository) *RoomService {
 }
 
 func (s *RoomService) generateRoomId() string {
+	s.room_count++
 	r := rand.New(rand.NewSource(int64(s.room_count)))
 
 	var room_id int
@@ -36,7 +37,6 @@ func (s *RoomService) generateRoomId() string {
 	}
 
 	id_string := fmt.Sprintf("%06d", room_id)
-	s.room_count++
 	return id_string
 }
 

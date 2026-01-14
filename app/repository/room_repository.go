@@ -66,7 +66,7 @@ func (r *PGRoomRepository) GetRoomById(ctx context.Context, id string) (*model.R
 }
 
 func (r *PGRoomRepository) GetRoomsByOwnerId(ctx context.Context, owner_id string) ([]model.Room, error) {
-	query := `SELECT id, owner_id FROM Rooms WHERE Owner_id = $1`
+	query := `SELECT id, room_name, owner_id FROM Rooms WHERE Owner_id = $1`
 
 	rows, err := r.driver.Query(ctx, query, owner_id)
 	if err != nil {
@@ -76,7 +76,7 @@ func (r *PGRoomRepository) GetRoomsByOwnerId(ctx context.Context, owner_id strin
 	var rooms []model.Room
 	for rows.Next() {
 		var room model.Room
-		if err := rows.Scan(&room.ID, &room.Owner_ID); err != nil {
+		if err := rows.Scan(&room.ID, &room.Room_Name, &room.Owner_ID); err != nil {
 			return nil, err
 		}
 		rooms = append(rooms, room)
