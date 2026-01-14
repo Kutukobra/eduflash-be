@@ -12,31 +12,22 @@ import (
 )
 
 type RoomService struct {
-	room_count int32
-	repo       repository.RoomRepository
-	checkId    map[int]bool
+	seed int32
+	repo repository.RoomRepository
 }
 
 func NewRoomService(repo repository.RoomRepository) *RoomService {
 	return &RoomService{
-		repo:       repo,
-		room_count: 0,
-		checkId:    make(map[int]bool),
+		repo: repo,
+		seed: 0,
 	}
 }
 
 func (s *RoomService) generateRoomId() string {
-	s.room_count++
-	r := rand.New(rand.NewSource(int64(s.room_count)))
+	s.seed++
+	r := rand.New(rand.NewSource(int64(s.seed)))
 
-	var room_id int
-	for {
-		room_id = r.Intn(999999)
-		if !s.checkId[room_id] {
-			s.checkId[room_id] = true
-			break
-		}
-	}
+	room_id := r.Intn(999999)
 
 	id_string := fmt.Sprintf("%06d", room_id)
 	return id_string
