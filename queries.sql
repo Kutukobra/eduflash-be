@@ -10,4 +10,6 @@ VALUES ($1, $2) RETURNING Id, Owner_id;
 
 SELECT * FROM Rooms WHERE Id = $1;
 
+SELECT * FROM Rooms WHERE Owner_id = $1;
+
 INSERT INTO RoomStudent (Room_Id, Student_Name) 

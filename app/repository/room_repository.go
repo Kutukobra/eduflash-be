@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"log"
 
 	"github.com/Kutukobra/eduflash-be/app/model"
 	"github.com/jackc/pgx/v5"
@@ -10,6 +11,7 @@ import (
 type RoomRepository interface {
 	CreateRoom(ctx context.Context, id string, owner_id string) (*model.Room, error)
 	GetRoomById(ctx context.Context, id string) (*model.Room, error)
+	GetRoomsByOwnerId(ctx context.Context, owner_id string) ([]model.Room, error)
 	JoinRoom(ctx context.Context, room_id string, student_name string) (*model.RoomStudent, error)
 	GetStudentsByRoomId(ctx context.Context, room_id string) ([]string, error)
 }
@@ -62,6 +64,32 @@ func (r *PGRoomRepository) GetRoomById(ctx context.Context, id string) (*model.R
 	row := r.driver.QueryRow(ctx, query, id)
 
 	return rowToRoom(row)
+}
+
+func (r *PGRoomRepository) GetRoomsByOwnerId(ctx context.Context, owner_id string) ([]model.Room, error) {
+	log.Println(owner_id)
+
+	query := `SELECT id, owner_id FROM Rooms WHERE Owner_id = $1`
+
+	rows, err := r.driver.Query(ctx, query, owner_id)
+	if err != nil {
+		return nil, err
+	}
+
+	var rooms []model.Room
+	for rows.Next() {
+		var room model.Room
+		if err := rows.Scan(&room.ID, &room.Owner_ID); err != nil {
+			return nil, err
+		}
+		rooms = append(rooms, room)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return rooms, nil
 }
 
 func (r *PGRoomRepository) JoinRoom(ctx context.Context, room_id string, student_name string) (*model.RoomStudent, error) {

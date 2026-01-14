@@ -10,7 +10,8 @@ import (
 )
 
 type UserService struct {
-	repo repository.UserRepository
+	userRepo repository.UserRepository
+	roomRepo repository.RoomRepository
 }
 
 var ErrInvalidRole = errors.New("invalid role")
@@ -24,14 +25,15 @@ func ValidateRole(role string) error {
 	}
 }
 
-func NewUserService(repo repository.UserRepository) *UserService {
+func NewUserService(userRepo repository.UserRepository, roomRepo repository.RoomRepository) *UserService {
 	return &UserService{
-		repo: repo,
+		userRepo: userRepo,
+		roomRepo: roomRepo,
 	}
 }
 
 func (s *UserService) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
-	userData, err := s.repo.GetUserByEmail(ctx, email)
+	userData, err := s.userRepo.GetUserByEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}
@@ -39,12 +41,21 @@ func (s *UserService) GetUserByEmail(ctx context.Context, email string) (*model.
 	return userData, nil
 }
 
+func (s *UserService) GetRoomsByOwnerId(ctx context.Context, owner_id string) ([]model.Room, error) {
+	rooms, err := s.roomRepo.GetRoomsByOwnerId(ctx, owner_id)
+	if err != nil {
+		return nil, err
+	}
+
+	return rooms, nil
+}
+
 func (s *UserService) RegisterUser(ctx context.Context, email string, username string, password string, role string) (*model.User, error) {
 	if err := ValidateRole(role); err != nil {
 		return nil, err
 	}
 
-	userData, err := s.repo.RegisterUser(ctx, username, email, password, role)
+	userData, err := s.userRepo.RegisterUser(ctx, username, email, password, role)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +64,7 @@ func (s *UserService) RegisterUser(ctx context.Context, email string, username s
 }
 
 func (s *UserService) LoginUser(ctx context.Context, email string, password string) (*model.User, error) {
-	userData, err := s.repo.GetUserByEmail(ctx, email)
+	userData, err := s.userRepo.GetUserByEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}

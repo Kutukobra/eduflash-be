@@ -20,11 +20,12 @@ func New(cfg *config.Config) (*App, error) {
 	}
 
 	userRepository := repository.NewPGUserRepository(PGDatabase)
-	userService := service.NewUserService(userRepository)
-	userHandler := handler.NewUserHandler(userService)
-
 	roomRepository := repository.NewPGRoomRepository(PGDatabase)
+
+	userService := service.NewUserService(userRepository, roomRepository)
 	roomService := service.NewRoomService(roomRepository)
+
+	userHandler := handler.NewUserHandler(userService)
 	roomHandler := handler.NewRoomHandler(roomService)
 
 	return &App{

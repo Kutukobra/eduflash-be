@@ -40,6 +40,27 @@ func (h *UserHandler) GetUserByEmail(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": userData})
 }
 
+func (h *UserHandler) GetRoomsByOwnerId(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	owner_id := c.Param("ownerId")
+	if owner_id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid owner ID."})
+		return
+	}
+
+	log.Println(owner_id)
+
+	rooms, err := h.serv.GetRoomsByOwnerId(ctx, owner_id)
+	if err != nil {
+		c.Error(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Owner."})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": rooms})
+}
+
 type RegisterUserRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 	Username string `json:"username" binding:"required"`

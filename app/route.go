@@ -15,6 +15,8 @@ func (a *App) Routes(router *gin.Engine) {
 			user.POST("/register", a.userHandler.RegisterUser)
 			//BODY: {email, password}
 			user.POST("/login", a.userHandler.LoginUser)
+			//
+			user.GET("/:ownerId/rooms", a.userHandler.GetRoomsByOwnerId)
 		}
 
 		room := api.Group("/room")
