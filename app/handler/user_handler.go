@@ -59,17 +59,16 @@ func (h *UserHandler) GetRoomsByOwnerId(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": rooms})
 }
 
-type RegisterUserRequest struct {
-	Email    string `json:"email" binding:"required,email"`
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-	Role     string `json:"role" binding:"required"`
-}
-
 func (h *UserHandler) RegisterUser(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	var requestData RegisterUserRequest
+	var requestData struct {
+		Email    string `json:"email" binding:"required,email"`
+		Username string `json:"username" binding:"required"`
+		Password string `json:"password" binding:"required"`
+		Role     string `json:"role" binding:"required"`
+	}
+
 	if err := c.ShouldBindJSON(&requestData); err != nil {
 		c.Error(err)
 		log.Println(requestData)
@@ -91,15 +90,14 @@ func (h *UserHandler) RegisterUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"data": userData.ID})
 }
 
-type LoginUserRequest struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required"`
-}
-
 func (h *UserHandler) LoginUser(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	var requestData LoginUserRequest
+	var requestData struct {
+		Email    string `json:"email" binding:"required,email"`
+		Password string `json:"password" binding:"required"`
+	}
+
 	if err := c.ShouldBindJSON(&requestData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body."})
 		return

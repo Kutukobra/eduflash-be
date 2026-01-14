@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/Kutukobra/eduflash-be/app/service"
 	"github.com/gin-gonic/gin"
@@ -21,13 +20,17 @@ func NewRoomHandler(serv *service.RoomService) *RoomHandler {
 func (h *RoomHandler) CreateRoom(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	owner_id := strings.ToUpper(c.Query("ownerId"))
-	if owner_id == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid owner ID."})
+	var requestData struct {
+		RoomName string `json:"roomName" binding:"required"`
+		OwnerId  string `json:"ownerId" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&requestData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body."})
 		return
 	}
 
-	roomData, err := h.serv.CreateRoom(ctx, owner_id)
+	roomData, err := h.serv.CreateRoom(ctx, requestData.RoomName, requestData.OwnerId)
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create room."})

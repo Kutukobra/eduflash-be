@@ -21,7 +21,7 @@ func (a *App) Routes(router *gin.Engine) {
 
 		room := api.Group("/room")
 		{
-			//?ownerId
+			//BODY: {roomName, ownerId}
 			room.POST("/create", a.roomHandler.CreateRoom)
 			//?studentName
 			room.POST("/:roomId/join", a.roomHandler.JoinRoom)
