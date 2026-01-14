@@ -11,7 +11,7 @@ type RoomRepository interface {
 	CreateRoom(ctx context.Context, id string, owner_id string) (*model.Room, error)
 	GetRoomById(ctx context.Context, id string) (*model.Room, error)
 	JoinRoom(ctx context.Context, room_id string, student_name string) (*model.RoomStudent, error)
-	GetStudentsByRoomId(ctx context.Context, room_id string) []string
+	GetStudentsByRoomId(ctx context.Context, room_id string) ([]string, error)
 }
 
 type PGRoomRepository struct {
@@ -74,4 +74,29 @@ func (r *PGRoomRepository) JoinRoom(ctx context.Context, room_id string, student
 	)
 
 	return rowToRoomStudent(row)
+}
+
+func (r *PGRoomRepository) GetStudentsByRoomId(ctx context.Context, room_id string) ([]string, error) {
+	query := `SELECT student_name FROM Room_Student WHERE room_id = $1`
+
+	rows, err := r.driver.Query(ctx, query, room_id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var students []string
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			return nil, err
+		}
+		students = append(students, name)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return students, nil
 }

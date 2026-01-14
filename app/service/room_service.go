@@ -45,3 +45,12 @@ func (s *RoomService) JoinRoom(ctx context.Context, room_id string, student_name
 
 	return roomData, nil
 }
+
+func (s *RoomService) GetStudentsByRoomId(ctx context.Context, room_id string) ([]string, error) {
+	students, err := s.repo.GetStudentsByRoomId(ctx, room_id)
+	if err != nil {
+		return nil, err
+	}
+
+	return students, nil
+}
