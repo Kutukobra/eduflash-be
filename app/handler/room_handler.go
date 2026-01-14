@@ -41,7 +41,7 @@ func (h *RoomHandler) JoinRoom(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	room_id := c.Param("roomId")
-	student_name := c.Param("studentName")
+	student_name := c.Query("studentName")
 
 	if room_id == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid room ID."})
