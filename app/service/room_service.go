@@ -2,11 +2,13 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/rand"
 
 	"github.com/Kutukobra/eduflash-be/app/model"
 	"github.com/Kutukobra/eduflash-be/app/repository"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type RoomService struct {
@@ -40,23 +42,43 @@ func (s *RoomService) generateRoomId() string {
 	return id_string
 }
 
-func (s *RoomService) CreateRoom(ctx context.Context, roomName string, owner_id string) (*model.Room, error) {
-	id_string := s.generateRoomId()
+func (s *RoomService) CreateRoom(ctx context.Context, roomName string, ownerID string) (*model.Room, error) {
+	const maxRetries = 5
 
-	room, err := s.repo.CreateRoom(ctx, id_string, roomName, owner_id)
-	if err != nil {
+	for i := 0; i < maxRetries; i++ {
+		id := s.generateRoomId()
+
+		room, err := s.repo.CreateRoom(ctx, id, roomName, ownerID)
+		if err == nil {
+			return room, nil
+		}
+
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			continue
+		}
+
 		return nil, err
 	}
-	return room, nil
+
+	return nil, fmt.Errorf("failed to generate unique room id after %d attempts", maxRetries)
 }
 
-func (s *RoomService) JoinRoom(ctx context.Context, room_id string, student_name string) (*model.RoomStudent, error) {
-	_, err := s.repo.GetRoomById(ctx, room_id)
+func (s *RoomService) GetRoomById(ctx context.Context, room_id string) (*model.Room, error) {
+	roomData, err := s.repo.GetRoomById(ctx, room_id)
+	if err != nil {
+		return nil, err
+	}
+	return roomData, nil
+}
+
+func (s *RoomService) JoinRoom(ctx context.Context, room_id string, student_name string) (*model.Room, error) {
+	roomData, err := s.repo.GetRoomById(ctx, room_id)
 	if err != nil {
 		return nil, err
 	}
 
-	roomData, err := s.repo.JoinRoom(ctx, room_id, student_name)
+	_, err = s.repo.JoinRoom(ctx, room_id, student_name)
 	if err != nil {
 		return nil, err
 	}

@@ -23,6 +23,8 @@ func (a *App) Routes(router *gin.Engine) {
 		{
 			//BODY: {roomName, ownerId}
 			room.POST("/create", a.roomHandler.CreateRoom)
+			//
+			room.GET("/:roomId", a.roomHandler.GetRoomById)
 			//?studentName
 			room.POST("/:roomId/join", a.roomHandler.JoinRoom)
 			//

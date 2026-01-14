@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/Kutukobra/eduflash-be/app/service"
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
 )
 
 type RoomHandler struct {
@@ -55,6 +57,31 @@ func (h *RoomHandler) JoinRoom(c *gin.Context) {
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid room or name."})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": roomData})
+}
+
+func (h *RoomHandler) GetRoomById(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	room_id := c.Param("roomId")
+
+	if room_id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid room ID."})
+		return
+	}
+
+	roomData, err := h.serv.GetRoomById(ctx, room_id)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			c.Error(err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Room not found"})
+			return
+		}
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get room data."})
 		return
 	}
 

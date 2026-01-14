@@ -21,7 +21,7 @@ type PGRoomRepository struct {
 
 func rowToRoom(row pgx.Row) (*model.Room, error) {
 	var room model.Room
-	err := row.Scan(&room.ID, &room.Room_Name, &room.Owner_ID)
+	err := row.Scan(&room.ID, &room.Owner_ID, &room.Room_Name)
 	if err != nil {
 		return nil, err
 	}
