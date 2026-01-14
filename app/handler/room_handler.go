@@ -40,17 +40,20 @@ func (h *RoomHandler) CreateRoom(c *gin.Context) {
 func (h *RoomHandler) JoinRoom(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	room_id := c.Query("roomId")
+	room_id := c.Param("roomId")
+	student_name := c.Param("studentName")
+
 	if room_id == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid room ID."})
 		return
 	}
 
-	err := h.serv.JoinRoom(ctx, room_id)
+	roomData, err := h.serv.JoinRoom(ctx, room_id, student_name)
 	if err != nil {
-		c.Status(http.StatusBadRequest)
+		c.Error(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid room or name."})
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{"data": roomData})
 }

@@ -2,9 +2,7 @@ package service
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"log"
 
 	"github.com/Kutukobra/eduflash-be/app/model"
 	"github.com/Kutukobra/eduflash-be/app/repository"
@@ -34,16 +32,16 @@ func (s *RoomService) CreateRoom(ctx context.Context, owner_id string) (*model.R
 	return room, nil
 }
 
-func (s *RoomService) JoinRoom(ctx context.Context, id string) error {
-	roomData, err := s.repo.GetRoomById(ctx, id)
+func (s *RoomService) JoinRoom(ctx context.Context, room_id string, student_name string) (*model.RoomStudent, error) {
+	_, err := s.repo.GetRoomById(ctx, room_id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	log.Println(roomData.ID)
-	if roomData == nil {
-		return errors.New("invalid room")
+	roomData, err := s.repo.JoinRoom(ctx, room_id, student_name)
+	if err != nil {
+		return nil, err
 	}
 
-	return nil
+	return roomData, nil
 }

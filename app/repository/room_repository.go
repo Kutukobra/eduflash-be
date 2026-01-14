@@ -10,6 +10,8 @@ import (
 type RoomRepository interface {
 	CreateRoom(ctx context.Context, id string, owner_id string) (*model.Room, error)
 	GetRoomById(ctx context.Context, id string) (*model.Room, error)
+	JoinRoom(ctx context.Context, room_id string, student_name string) (*model.RoomStudent, error)
+	GetStudentsByRoomId(ctx context.Context, room_id string) []string
 }
 
 type PGRoomRepository struct {
@@ -24,6 +26,16 @@ func rowToRoom(row pgx.Row) (*model.Room, error) {
 	}
 
 	return &room, nil
+}
+
+func rowToRoomStudent(row pgx.Row) (*model.RoomStudent, error) {
+	var roomStudent model.RoomStudent
+	err := row.Scan(&roomStudent.Room_ID, &roomStudent.Student_Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return &roomStudent, nil
 }
 
 func NewPGRoomRepository(driver *pgx.Conn) *PGRoomRepository {
@@ -50,4 +62,16 @@ func (r *PGRoomRepository) GetRoomById(ctx context.Context, id string) (*model.R
 	row := r.driver.QueryRow(ctx, query, id)
 
 	return rowToRoom(row)
+}
+
+func (r *PGRoomRepository) JoinRoom(ctx context.Context, room_id string, student_name string) (*model.RoomStudent, error) {
+	query := `
+		INSERT INTO Room_Student (Room_Id, Student_Name) VALUES ($1, $2)
+		RETURNING Room_Id, Student_Name`
+
+	row := r.driver.QueryRow(
+		ctx, query, room_id, student_name,
+	)
+
+	return rowToRoomStudent(row)
 }

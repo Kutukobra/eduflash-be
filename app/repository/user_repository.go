@@ -35,7 +35,7 @@ func NewPGUserRepository(driver *pgx.Conn) *PGUserRepository {
 }
 
 func (r *PGUserRepository) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
-	query := "SELECT * FROM Users WHERE email = $1"
+	query := "SELECT ID, Username, Email, Password, Role FROM Users WHERE email = $1"
 	row := r.driver.QueryRow(ctx, query, email)
 	return rowToUser(row)
 }

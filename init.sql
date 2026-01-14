@@ -2,7 +2,7 @@ CREATE TYPE role_enum AS ENUM ('student', 'teacher', 'admin');
 
 CREATE TABLE  Users (
     ID UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    Email VARCHAR(64) NOT NULL UNIQUE,
+    Email VARCHAR(64) NOT 3NULL UNIQUE,
     Username VARCHAR(64) NOT NULL,
     Password VARCHAR(255) NOT NULL,
     Role role_enum
@@ -16,6 +16,11 @@ CREATE TABLE Rooms (
 CREATE TABLE Quizzes (
     ID UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     Questions TEXT NOT NULL
+);
+
+CREATE TABLE Room_Student (
+    room_id TEXT NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
+    student_name TEXT NOT NULL UNIQUE
 );
 
 CREATE TABLE Room_Quiz (
