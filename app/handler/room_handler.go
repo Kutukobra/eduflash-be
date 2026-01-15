@@ -7,6 +7,7 @@ import (
 	"github.com/Kutukobra/eduflash-be/app/service"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type RoomHandler struct {
@@ -55,6 +56,11 @@ func (h *RoomHandler) JoinRoom(c *gin.Context) {
 
 	roomData, err := h.serv.JoinRoom(ctx, room_id, student_name)
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Name already taken."})
+			return
+		}
 		c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid room or name."})
 		return

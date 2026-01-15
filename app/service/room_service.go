@@ -34,7 +34,7 @@ func (s *RoomService) generateRoomId() string {
 }
 
 func (s *RoomService) CreateRoom(ctx context.Context, roomName string, ownerID string) (*model.Room, error) {
-	const maxRetries = 5
+	const maxRetries = 20
 
 	for i := 0; i < maxRetries; i++ {
 		id := s.generateRoomId()

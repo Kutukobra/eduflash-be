@@ -21,7 +21,7 @@ type PGRoomRepository struct {
 
 func rowToRoom(row pgx.Row) (*model.Room, error) {
 	var room model.Room
-	err := row.Scan(&room.ID, &room.Owner_ID, &room.Room_Name)
+	err := row.Scan(&room.ID, &room.Room_Name, &room.Created_At, &room.Owner_ID)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (r *PGRoomRepository) GetRoomById(ctx context.Context, id string) (*model.R
 }
 
 func (r *PGRoomRepository) GetRoomsByOwnerId(ctx context.Context, owner_id string) ([]model.Room, error) {
-	query := `SELECT id, room_name, owner_id FROM Rooms WHERE Owner_id = $1`
+	query := `SELECT id, room_name, owner_id FROM Rooms WHERE Owner_id = $1 ORDER BY created_at DESC`
 
 	rows, err := r.driver.Query(ctx, query, owner_id)
 	if err != nil {

@@ -1,9 +1,12 @@
 package model
 
+import "time"
+
 type Room struct {
-	ID        string `json:"id"`
-	Room_Name string `json:"room_name"`
-	Owner_ID  string `json:"owner_id"`
+	ID         string    `json:"id"`
+	Room_Name  string    `json:"room_name"`
+	Created_At time.Time `json:"created_at"`
+	Owner_ID   string    `json:"owner_id"`
 }
 
 type RoomStudent struct {

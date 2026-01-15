@@ -1,8 +1,13 @@
-CREATE TYPE role_enum AS ENUM ('student', 'teacher', 'admin');
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO public;
+
 
 CREATE TABLE  Users (
     ID UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    Email VARCHAR(64) NOT 3NULL UNIQUE,
+    Email VARCHAR(64) NOT NULL UNIQUE,
     Username VARCHAR(64) NOT NULL,
     Password VARCHAR(255) NOT NULL,
     Role role_enum
@@ -11,6 +16,7 @@ CREATE TABLE  Users (
 CREATE TABLE Rooms (
     id TEXT PRIMARY KEY NOT NULL UNIQUE,
     room_name TEXT,
+    created_at TIMESTAMP DEFAULT NOW(),
     owner_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );
 
