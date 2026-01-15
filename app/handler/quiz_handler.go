@@ -22,6 +22,7 @@ func (h *QuizHandler) CreateQuiz(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	var requestData struct {
+		RoomId  string              `json:"roomId" binding:"required"`
 		Content []model.QuizContent `json:"content" binding:"required"`
 	}
 
@@ -31,7 +32,7 @@ func (h *QuizHandler) CreateQuiz(c *gin.Context) {
 		return
 	}
 
-	quizId, err := h.serv.CreateQuiz(ctx, requestData.Content)
+	quizId, err := h.serv.CreateQuiz(ctx, requestData.RoomId, requestData.Content)
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create quiz."})

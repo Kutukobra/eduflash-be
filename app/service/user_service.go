@@ -39,11 +39,7 @@ func (s *UserService) GetRoomsByOwnerId(ctx context.Context, owner_id string) ([
 }
 
 func (s *UserService) RegisterUser(ctx context.Context, email string, username string, password string) (*model.User, error) {
-	if err := ValidateRole(role); err != nil {
-		return nil, err
-	}
-
-	userData, err := s.userRepo.RegisterUser(ctx, username, email, password, role)
+	userData, err := s.userRepo.RegisterUser(ctx, username, email, password)
 	if err != nil {
 		return nil, err
 	}

@@ -8,22 +8,28 @@ import (
 )
 
 type QuizService struct {
-	repo repository.QuizRepository
+	quizRepo repository.QuizRepository
+	roomRepo repository.RoomRepository
 }
 
-func NewQuizService(repo repository.QuizRepository) *QuizService {
-	return &QuizService{repo: repo}
+func NewQuizService(quizRepo repository.QuizRepository, roomRepo repository.RoomRepository) *QuizService {
+	return &QuizService{quizRepo: quizRepo, roomRepo: roomRepo}
 }
 
-func (s *QuizService) CreateQuiz(ctx context.Context, quiz []model.QuizContent) (string, error) {
-	id, err := s.repo.CreateQuiz(ctx, quiz)
+func (s *QuizService) CreateQuiz(ctx context.Context, roomId string, quiz []model.QuizContent) (string, error) {
+	id, err := s.quizRepo.CreateQuiz(ctx, quiz)
 	if err != nil {
 		return "", err
+	}
+
+	err = s.roomRepo.AddQuiz(ctx, roomId, id)
+	if err != nil {
+		return id, err
 	}
 
 	return id, nil
 }
 
 func (s *QuizService) GetQuizById(ctx context.Context, id string) ([]model.QuizContent, error) {
-	return s.repo.GetQuizById(ctx, id)
+	return s.quizRepo.GetQuizById(ctx, id)
 }

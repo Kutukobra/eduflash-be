@@ -13,6 +13,7 @@ type RoomRepository interface {
 	GetRoomsByOwnerId(ctx context.Context, owner_id string) ([]model.Room, error)
 	JoinRoom(ctx context.Context, room_id string, student_name string) (*model.RoomStudent, error)
 	GetStudentsByRoomId(ctx context.Context, room_id string) ([]string, error)
+	AddQuiz(ctx context.Context, roomId string, quizId string) error
 }
 
 type PGRoomRepository struct {
@@ -49,7 +50,7 @@ func (r *PGRoomRepository) CreateRoom(
 ) (*model.Room, error) {
 	query := `
 		INSERT INTO Rooms (Id, Room_Name, Owner_id)
-		VALUES ($1, $2, $3) RETURNING Id, Room_Name, Owner_Id`
+		VALUES ($1, $2, $3) RETURNING id, room_name, created_at, owner_id`
 
 	row := r.driver.QueryRow(
 		ctx, query, id, roomName, owner_id,
@@ -124,4 +125,14 @@ func (r *PGRoomRepository) GetStudentsByRoomId(ctx context.Context, room_id stri
 	}
 
 	return students, nil
+}
+
+func (r *PGRoomRepository) AddQuiz(ctx context.Context, roomId string, quizId string) error {
+	query := `INSERT INTO room_quiz (room_id, quiz_id) VALUES ($1, $2)`
+	_, err := r.driver.Exec(ctx, query, roomId, quizId)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

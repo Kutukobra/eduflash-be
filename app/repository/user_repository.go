@@ -51,7 +51,7 @@ func (r *PGUserRepository) RegisterUser(
 	}
 
 	query := `
-		INSERT INTO Users (Username, Email, Password, Role) 
+		INSERT INTO Users (Username, Email, Password) 
 		VALUES ($1, $2, $3) RETURNING ID, Username, Email, Password`
 
 	row := r.driver.QueryRow(

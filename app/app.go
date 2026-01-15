@@ -26,7 +26,7 @@ func New(cfg *config.Config) (*App, error) {
 
 	userService := service.NewUserService(userRepository, roomRepository)
 	roomService := service.NewRoomService(roomRepository)
-	quizService := service.NewQuizService(quizRepository)
+	quizService := service.NewQuizService(quizRepository, roomRepository)
 
 	userHandler := handler.NewUserHandler(userService)
 	roomHandler := handler.NewRoomHandler(roomService)
