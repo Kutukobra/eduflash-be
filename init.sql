@@ -36,10 +36,9 @@ CREATE TABLE Room_Quiz (
 );
 
 CREATE TABLE student_scores (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    student_name TEXT NOT NULL,
     quiz_id UUID NOT NULL REFERENCES quizzes(id) ON DELETE CASCADE,
-    room_id TEXT REFERENCES rooms(id) ON DELETE CASCADE,
+    student_name TEXT NOT NULL,
     score REAL NOT NULL,
-    submitted_at TIMESTAMP DEFAULT now()
+    submitted_at TIMESTAMP DEFAULT now(),
+    PRIMARY KEY (quiz_id, student_name)
 );

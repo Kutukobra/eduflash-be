@@ -38,13 +38,9 @@ func (s *UserService) GetRoomsByOwnerId(ctx context.Context, owner_id string) ([
 	return rooms, nil
 }
 
-func (s *UserService) RegisterUser(ctx context.Context, email string, username string, password string) (*model.User, error) {
-	userData, err := s.userRepo.RegisterUser(ctx, username, email, password)
-	if err != nil {
-		return nil, err
-	}
-
-	return userData, nil
+func (s *UserService) RegisterUser(ctx context.Context, email string, username string, password string) error {
+	err := s.userRepo.RegisterUser(ctx, username, email, password)
+	return err
 }
 
 func (s *UserService) LoginUser(ctx context.Context, email string, password string) (*model.User, error) {

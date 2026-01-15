@@ -66,3 +66,30 @@ func (h *QuizHandler) GetQuizById(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"data": content})
 }
+
+func (h *QuizHandler) SubmitScore(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	var requestData struct {
+		StudentName string  `json:"studentName" binding:"required"`
+		Score       float32 `json:"score" binding:"required"`
+	}
+
+	quizId := c.Param("id")
+
+	if err := c.ShouldBindJSON(&requestData); err != nil {
+		c.Error(err)
+		c.Status(http.StatusBadRequest)
+		return
+	}
+
+	err := h.serv.SubmitScore(ctx, quizId, requestData.StudentName, requestData.Score)
+
+	if err != nil {
+		c.Error(err)
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	c.Status(http.StatusOK)
+}

@@ -36,7 +36,7 @@ func (h *RoomHandler) CreateRoom(c *gin.Context) {
 	roomData, err := h.serv.CreateRoom(ctx, requestData.RoomName, requestData.OwnerId)
 	if err != nil {
 		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create room."})
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
@@ -59,6 +59,9 @@ func (h *RoomHandler) JoinRoom(c *gin.Context) {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Name already taken."})
+			return
+		} else if errors.Is(err, pgx.ErrNoRows) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Room not found taken."})
 			return
 		}
 		c.Error(err)

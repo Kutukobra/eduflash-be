@@ -12,34 +12,20 @@ import (
 )
 
 type RoomService struct {
-	seed int32
 	repo repository.RoomRepository
 }
 
 func NewRoomService(repo repository.RoomRepository) *RoomService {
-	return &RoomService{
-		repo: repo,
-		seed: 0,
-	}
+	return &RoomService{repo: repo}
 }
 
-func (s *RoomService) generateRoomId() string {
-	s.seed++
-	r := rand.New(rand.NewSource(int64(s.seed)))
-
-	room_id := r.Intn(999999)
-
-	id_string := fmt.Sprintf("%06d", room_id)
-	return id_string
-}
-
-func (s *RoomService) CreateRoom(ctx context.Context, roomName string, ownerID string) (*model.Room, error) {
+func (s *RoomService) CreateRoom(ctx context.Context, roomName string, ownerId string) (*model.Room, error) {
 	const maxRetries = 20
 
 	for i := 0; i < maxRetries; i++ {
-		id := s.generateRoomId()
+		id := fmt.Sprintf("%06d", rand.Intn(1000000))
 
-		room, err := s.repo.CreateRoom(ctx, id, roomName, ownerID)
+		room, err := s.repo.CreateRoom(ctx, id, roomName, ownerId)
 		if err == nil {
 			return room, nil
 		}
@@ -63,13 +49,13 @@ func (s *RoomService) GetRoomById(ctx context.Context, room_id string) (*model.R
 	return roomData, nil
 }
 
-func (s *RoomService) JoinRoom(ctx context.Context, room_id string, student_name string) (*model.Room, error) {
-	roomData, err := s.repo.GetRoomById(ctx, room_id)
+func (s *RoomService) JoinRoom(ctx context.Context, roomId string, studentName string) (*model.Room, error) {
+	roomData, err := s.repo.GetRoomById(ctx, roomId)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = s.repo.JoinRoom(ctx, room_id, student_name)
+	err = s.repo.JoinRoom(ctx, roomId, studentName)
 	if err != nil {
 		return nil, err
 	}

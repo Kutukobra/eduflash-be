@@ -13,7 +13,7 @@ type UserRepository interface {
 	RegisterUser(
 		ctx context.Context,
 		username string, email string, password string,
-	) (*model.User, error)
+	) error
 }
 
 type PGUserRepository struct {
@@ -43,21 +43,20 @@ func (r *PGUserRepository) GetUserByEmail(ctx context.Context, email string) (*m
 func (r *PGUserRepository) RegisterUser(
 	ctx context.Context,
 	username string, email string, password string,
-) (*model.User, error) {
+) error {
 
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), 0)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	query := `
-		INSERT INTO Users (Username, Email, Password) 
-		VALUES ($1, $2, $3) RETURNING ID, Username, Email, Password`
+		INSERT INTO Users (Username, Email, Password) VALUES ($1, $2, $3)`
 
-	row := r.driver.QueryRow(
+	_, err = r.driver.Exec(
 		ctx, query,
 		username, email, passwordHash,
 	)
 
-	return rowToUser(row)
+	return err
 }

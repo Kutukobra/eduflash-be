@@ -11,6 +11,7 @@ import (
 type QuizRepository interface {
 	CreateQuiz(ctx context.Context, quiz []model.QuizContent) (string, error)
 	GetQuizById(ctx context.Context, id string) ([]model.QuizContent, error)
+	SubmitScore(ctx context.Context, quizId string, studentName string, score float32) error
 }
 
 type PGQuizRepository struct {
@@ -53,4 +54,14 @@ func (r *PGQuizRepository) GetQuizById(ctx context.Context, id string) ([]model.
 	err = json.Unmarshal(raw, &quiz)
 
 	return quiz, err
+}
+
+func (r *PGQuizRepository) SubmitScore(ctx context.Context, quizId string, studentName string, score float32) error {
+	query := `
+		INSERT INTO student_scores (quiz_id, student_name, score)
+		VALUES ($1, $2, $3)`
+
+	_, err := r.driver.Exec(ctx, query, quizId, studentName, score)
+
+	return err
 }

@@ -8,10 +8,10 @@ import (
 )
 
 type RoomRepository interface {
-	CreateRoom(ctx context.Context, id string, roomName string, owner_id string) (*model.Room, error)
+	CreateRoom(ctx context.Context, id string, roomName string, ownerId string) (*model.Room, error)
 	GetRoomById(ctx context.Context, id string) (*model.Room, error)
-	GetRoomsByOwnerId(ctx context.Context, owner_id string) ([]model.Room, error)
-	JoinRoom(ctx context.Context, room_id string, student_name string) (*model.RoomStudent, error)
+	GetRoomsByOwnerId(ctx context.Context, ownerId string) ([]model.Room, error)
+	JoinRoom(ctx context.Context, room_id string, student_name string) error
 	GetStudentsByRoomId(ctx context.Context, room_id string) ([]string, error)
 	AddQuiz(ctx context.Context, roomId string, quizId string) error
 }
@@ -22,22 +22,12 @@ type PGRoomRepository struct {
 
 func rowToRoom(row pgx.Row) (*model.Room, error) {
 	var room model.Room
-	err := row.Scan(&room.ID, &room.Room_Name, &room.Created_At, &room.Owner_ID)
+	err := row.Scan(&room.ID, &room.RoomName, &room.CreatedAt, &room.OwnerId)
 	if err != nil {
 		return nil, err
 	}
 
 	return &room, nil
-}
-
-func rowToRoomStudent(row pgx.Row) (*model.RoomStudent, error) {
-	var roomStudent model.RoomStudent
-	err := row.Scan(&roomStudent.Room_ID, &roomStudent.Student_Name)
-	if err != nil {
-		return nil, err
-	}
-
-	return &roomStudent, nil
 }
 
 func NewPGRoomRepository(driver *pgx.Conn) *PGRoomRepository {
@@ -46,30 +36,30 @@ func NewPGRoomRepository(driver *pgx.Conn) *PGRoomRepository {
 
 func (r *PGRoomRepository) CreateRoom(
 	ctx context.Context,
-	id string, roomName string, owner_id string,
+	id string, roomName string, ownerId string,
 ) (*model.Room, error) {
 	query := `
-		INSERT INTO Rooms (Id, Room_Name, Owner_id)
+		INSERT INTO rooms (id, room_name, owner_id)
 		VALUES ($1, $2, $3) RETURNING id, room_name, created_at, owner_id`
 
 	row := r.driver.QueryRow(
-		ctx, query, id, roomName, owner_id,
+		ctx, query, id, roomName, ownerId,
 	)
 	return rowToRoom(row)
 }
 
 func (r *PGRoomRepository) GetRoomById(ctx context.Context, id string) (*model.Room, error) {
-	query := `SELECT * FROM Rooms WHERE Id = $1`
+	query := `SELECT * FROM rooms WHERE id = $1`
 
 	row := r.driver.QueryRow(ctx, query, id)
 
 	return rowToRoom(row)
 }
 
-func (r *PGRoomRepository) GetRoomsByOwnerId(ctx context.Context, owner_id string) ([]model.Room, error) {
-	query := `SELECT id, room_name, owner_id FROM Rooms WHERE Owner_id = $1 ORDER BY created_at DESC`
+func (r *PGRoomRepository) GetRoomsByOwnerId(ctx context.Context, ownerId string) ([]model.Room, error) {
+	query := `SELECT id, room_name, owner_id FROM Rooms WHERE owner_id = $1 ORDER BY created_at DESC`
 
-	rows, err := r.driver.Query(ctx, query, owner_id)
+	rows, err := r.driver.Query(ctx, query, ownerId)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +67,7 @@ func (r *PGRoomRepository) GetRoomsByOwnerId(ctx context.Context, owner_id strin
 	var rooms []model.Room
 	for rows.Next() {
 		var room model.Room
-		if err := rows.Scan(&room.ID, &room.Room_Name, &room.Owner_ID); err != nil {
+		if err := rows.Scan(&room.ID, &room.RoomName, &room.OwnerId); err != nil {
 			return nil, err
 		}
 		rooms = append(rooms, room)
@@ -90,22 +80,20 @@ func (r *PGRoomRepository) GetRoomsByOwnerId(ctx context.Context, owner_id strin
 	return rooms, nil
 }
 
-func (r *PGRoomRepository) JoinRoom(ctx context.Context, room_id string, student_name string) (*model.RoomStudent, error) {
-	query := `
-		INSERT INTO Room_Student (Room_Id, Student_Name) VALUES ($1, $2)
-		RETURNING Room_Id, Student_Name`
+func (r *PGRoomRepository) JoinRoom(ctx context.Context, roomId string, studentName string) error {
+	query := `INSERT INTO Room_Student (Room_Id, Student_Name) VALUES ($1, $2)`
 
-	row := r.driver.QueryRow(
-		ctx, query, room_id, student_name,
+	_, err := r.driver.Exec(
+		ctx, query, roomId, studentName,
 	)
 
-	return rowToRoomStudent(row)
+	return err
 }
 
-func (r *PGRoomRepository) GetStudentsByRoomId(ctx context.Context, room_id string) ([]string, error) {
+func (r *PGRoomRepository) GetStudentsByRoomId(ctx context.Context, roomId string) ([]string, error) {
 	query := `SELECT student_name FROM Room_Student WHERE room_id = $1`
 
-	rows, err := r.driver.Query(ctx, query, room_id)
+	rows, err := r.driver.Query(ctx, query, roomId)
 	if err != nil {
 		return nil, err
 	}
@@ -129,6 +117,7 @@ func (r *PGRoomRepository) GetStudentsByRoomId(ctx context.Context, room_id stri
 
 func (r *PGRoomRepository) AddQuiz(ctx context.Context, roomId string, quizId string) error {
 	query := `INSERT INTO room_quiz (room_id, quiz_id) VALUES ($1, $2)`
+
 	_, err := r.driver.Exec(ctx, query, roomId, quizId)
 	if err != nil {
 		return err

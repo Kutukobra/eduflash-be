@@ -21,7 +21,6 @@ func NewUserHandler(serv *service.UserService) *UserHandler {
 	}
 }
 
-// /user?email=email
 func (h *UserHandler) GetUserByEmail(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -34,7 +33,7 @@ func (h *UserHandler) GetUserByEmail(c *gin.Context) {
 	userData, err := h.serv.GetUserByEmail(ctx, email)
 	if err != nil {
 		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user."})
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
@@ -44,13 +43,13 @@ func (h *UserHandler) GetUserByEmail(c *gin.Context) {
 func (h *UserHandler) GetRoomsByOwnerId(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	owner_id := c.Param("ownerId")
-	if owner_id == "" {
+	ownerId := c.Param("ownerId")
+	if ownerId == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid owner ID."})
 		return
 	}
 
-	rooms, err := h.serv.GetRoomsByOwnerId(ctx, owner_id)
+	rooms, err := h.serv.GetRoomsByOwnerId(ctx, ownerId)
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Owner."})
@@ -76,14 +75,14 @@ func (h *UserHandler) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	userData, err := h.serv.RegisterUser(ctx, requestData.Email, requestData.Username, requestData.Password)
+	err := h.serv.RegisterUser(ctx, requestData.Email, requestData.Username, requestData.Password)
 	if err != nil {
 		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register user."})
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"data": userData.ID})
+	c.Status(http.StatusCreated)
 }
 
 func (h *UserHandler) LoginUser(c *gin.Context) {
@@ -108,7 +107,7 @@ func (h *UserHandler) LoginUser(c *gin.Context) {
 		return
 	} else if err != nil {
 		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to login."})
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
