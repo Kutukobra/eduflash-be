@@ -40,7 +40,7 @@ func (h *RoomHandler) CreateRoom(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": roomData})
+	c.JSON(http.StatusOK, gin.H{"room": roomData})
 }
 
 func (h *RoomHandler) JoinRoom(c *gin.Context) {
@@ -65,11 +65,11 @@ func (h *RoomHandler) JoinRoom(c *gin.Context) {
 			return
 		}
 		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid room or name."})
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": roomData})
+	c.JSON(http.StatusOK, gin.H{"room": roomData})
 }
 
 func (h *RoomHandler) GetRoomById(c *gin.Context) {
@@ -94,7 +94,7 @@ func (h *RoomHandler) GetRoomById(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": roomData})
+	c.JSON(http.StatusOK, gin.H{"room": roomData})
 }
 
 func (h *RoomHandler) GetStudentsByRoomId(c *gin.Context) {
@@ -113,5 +113,5 @@ func (h *RoomHandler) GetStudentsByRoomId(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": students})
+	c.JSON(http.StatusOK, gin.H{"students": students})
 }

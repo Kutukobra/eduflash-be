@@ -20,9 +20,7 @@ func NewRoomService(repo repository.RoomRepository) *RoomService {
 }
 
 func (s *RoomService) CreateRoom(ctx context.Context, roomName string, ownerId string) (*model.Room, error) {
-	const maxRetries = 20
-
-	for i := 0; i < maxRetries; i++ {
+	for {
 		id := fmt.Sprintf("%06d", rand.Intn(1000000))
 
 		room, err := s.repo.CreateRoom(ctx, id, roomName, ownerId)
@@ -37,8 +35,6 @@ func (s *RoomService) CreateRoom(ctx context.Context, roomName string, ownerId s
 
 		return nil, err
 	}
-
-	return nil, fmt.Errorf("failed to generate unique room id after %d attempts", maxRetries)
 }
 
 func (s *RoomService) GetRoomById(ctx context.Context, room_id string) (*model.Room, error) {

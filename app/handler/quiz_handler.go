@@ -35,7 +35,7 @@ func (h *QuizHandler) CreateQuiz(c *gin.Context) {
 	quizId, err := h.serv.CreateQuiz(ctx, requestData.RoomId, requestData.Content)
 	if err != nil {
 		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create quiz."})
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
@@ -45,7 +45,7 @@ func (h *QuizHandler) CreateQuiz(c *gin.Context) {
 func (h *QuizHandler) GetQuizById(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	id := c.Param("id")
+	id := c.Param("quizId")
 	if id == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Must have ID."})
 		return
@@ -60,11 +60,11 @@ func (h *QuizHandler) GetQuizById(c *gin.Context) {
 		}
 
 		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get quiz."})
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": content})
+	c.JSON(http.StatusOK, gin.H{"quiz": content})
 }
 
 func (h *QuizHandler) SubmitScore(c *gin.Context) {
@@ -75,7 +75,7 @@ func (h *QuizHandler) SubmitScore(c *gin.Context) {
 		Score       float32 `json:"score" binding:"required"`
 	}
 
-	quizId := c.Param("id")
+	quizId := c.Param("quizId")
 
 	if err := c.ShouldBindJSON(&requestData); err != nil {
 		c.Error(err)

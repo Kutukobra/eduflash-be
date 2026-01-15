@@ -37,7 +37,7 @@ func (h *UserHandler) GetUserByEmail(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": userData})
+	c.JSON(http.StatusOK, gin.H{"user": userData})
 }
 
 func (h *UserHandler) GetRoomsByOwnerId(c *gin.Context) {
@@ -56,7 +56,7 @@ func (h *UserHandler) GetRoomsByOwnerId(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": rooms})
+	c.JSON(http.StatusOK, gin.H{"rooms": rooms})
 }
 
 func (h *UserHandler) RegisterUser(c *gin.Context) {
@@ -111,5 +111,5 @@ func (h *UserHandler) LoginUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": userData})
+	c.JSON(http.StatusOK, gin.H{"user": userData})
 }
