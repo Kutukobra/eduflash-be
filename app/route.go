@@ -35,6 +35,8 @@ func (a *App) Routes(router *gin.Engine) {
 		{
 			//BODY {content}
 			quiz.POST("/create", a.quizHandler.CreateQuiz)
+
+			quiz.GET("/:id", a.quizHandler.GetQuizById)
 		}
 	}
 }
