@@ -9,8 +9,7 @@ CREATE TABLE  Users (
     ID UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     Email VARCHAR(64) NOT NULL UNIQUE,
     Username VARCHAR(64) NOT NULL,
-    Password VARCHAR(255) NOT NULL,
-    Role role_enum
+    Password VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE Rooms (
@@ -22,7 +21,7 @@ CREATE TABLE Rooms (
 
 CREATE TABLE Quizzes (
     ID UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    Questions TEXT NOT NULL
+    Content JSONB
 );
 
 CREATE TABLE Room_Student (

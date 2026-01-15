@@ -30,5 +30,11 @@ func (a *App) Routes(router *gin.Engine) {
 			//
 			room.GET("/:roomId/students", a.roomHandler.GetStudentsByRoomId)
 		}
+
+		quiz := api.Group("/quiz")
+		{
+			//BODY {content}
+			quiz.POST("/create", a.quizHandler.CreateQuiz)
+		}
 	}
 }
