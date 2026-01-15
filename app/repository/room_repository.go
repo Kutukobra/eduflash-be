@@ -22,7 +22,7 @@ type PGRoomRepository struct {
 
 func rowToRoom(row pgx.Row) (*model.Room, error) {
 	var room model.Room
-	err := row.Scan(&room.ID, &room.RoomName, &room.CreatedAt, &room.OwnerId)
+	err := row.Scan(&room.ID, &room.Name, &room.CreatedAt, &room.OwnerId)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (r *PGRoomRepository) GetRoomsByOwnerId(ctx context.Context, ownerId string
 	var rooms []model.Room
 	for rows.Next() {
 		var room model.Room
-		if err := rows.Scan(&room.ID, &room.RoomName, &room.OwnerId); err != nil {
+		if err := rows.Scan(&room.ID, &room.Name, &room.OwnerId); err != nil {
 			return nil, err
 		}
 		rooms = append(rooms, room)

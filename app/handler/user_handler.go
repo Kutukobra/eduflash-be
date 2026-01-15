@@ -8,6 +8,7 @@ import (
 	"github.com/Kutukobra/eduflash-be/app/service"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -77,6 +78,11 @@ func (h *UserHandler) RegisterUser(c *gin.Context) {
 
 	err := h.serv.RegisterUser(ctx, requestData.Email, requestData.Username, requestData.Password)
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr); pgErr.Code == "23505" {
+			c.Status(http.StatusBadRequest)
+			return
+		}
 		c.Error(err)
 		c.Status(http.StatusInternalServerError)
 		return
