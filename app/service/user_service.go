@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 
 	"github.com/Kutukobra/eduflash-be/app/model"
 	"github.com/Kutukobra/eduflash-be/app/repository"
@@ -12,17 +11,6 @@ import (
 type UserService struct {
 	userRepo repository.UserRepository
 	roomRepo repository.RoomRepository
-}
-
-var ErrInvalidRole = errors.New("invalid role")
-
-func ValidateRole(role string) error {
-	switch role {
-	case "admin", "user", "teacher":
-		return nil
-	default:
-		return ErrInvalidRole
-	}
 }
 
 func NewUserService(userRepo repository.UserRepository, roomRepo repository.RoomRepository) *UserService {
@@ -50,7 +38,7 @@ func (s *UserService) GetRoomsByOwnerId(ctx context.Context, owner_id string) ([
 	return rooms, nil
 }
 
-func (s *UserService) RegisterUser(ctx context.Context, email string, username string, password string, role string) (*model.User, error) {
+func (s *UserService) RegisterUser(ctx context.Context, email string, username string, password string) (*model.User, error) {
 	if err := ValidateRole(role); err != nil {
 		return nil, err
 	}

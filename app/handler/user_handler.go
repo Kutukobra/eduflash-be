@@ -67,7 +67,6 @@ func (h *UserHandler) RegisterUser(c *gin.Context) {
 		Email    string `json:"email" binding:"required,email"`
 		Username string `json:"username" binding:"required"`
 		Password string `json:"password" binding:"required"`
-		Role     string `json:"role" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&requestData); err != nil {
@@ -80,10 +79,6 @@ func (h *UserHandler) RegisterUser(c *gin.Context) {
 	userData, err := h.serv.RegisterUser(ctx, requestData.Email, requestData.Username, requestData.Password, requestData.Role)
 	if err != nil {
 		c.Error(err)
-		if errors.Is(err, service.ErrInvalidRole) {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role."})
-			return
-		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register user."})
 		return
 	}

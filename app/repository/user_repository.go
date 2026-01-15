@@ -12,7 +12,7 @@ type UserRepository interface {
 	GetUserByEmail(ctx context.Context, email string) (*model.User, error)
 	RegisterUser(
 		ctx context.Context,
-		username string, email string, password string, role string,
+		username string, email string, password string,
 	) (*model.User, error)
 }
 
@@ -22,7 +22,7 @@ type PGUserRepository struct {
 
 func rowToUser(row pgx.Row) (*model.User, error) {
 	var user model.User
-	err := row.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Role)
+	err := row.Scan(&user.ID, &user.Username, &user.Email, &user.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -35,14 +35,14 @@ func NewPGUserRepository(driver *pgx.Conn) *PGUserRepository {
 }
 
 func (r *PGUserRepository) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
-	query := "SELECT ID, Username, Email, Password, Role FROM Users WHERE email = $1"
+	query := "SELECT ID, Username, Email, Password FROM Users WHERE email = $1"
 	row := r.driver.QueryRow(ctx, query, email)
 	return rowToUser(row)
 }
 
 func (r *PGUserRepository) RegisterUser(
 	ctx context.Context,
-	username string, email string, password string, role string,
+	username string, email string, password string,
 ) (*model.User, error) {
 
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), 0)
@@ -52,11 +52,11 @@ func (r *PGUserRepository) RegisterUser(
 
 	query := `
 		INSERT INTO Users (Username, Email, Password, Role) 
-		VALUES ($1, $2, $3, $4) RETURNING ID, Username, Email, Password, Role`
+		VALUES ($1, $2, $3) RETURNING ID, Username, Email, Password`
 
 	row := r.driver.QueryRow(
 		ctx, query,
-		username, email, passwordHash, role,
+		username, email, passwordHash,
 	)
 
 	return rowToUser(row)
