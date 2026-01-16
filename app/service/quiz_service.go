@@ -22,11 +22,6 @@ func (s *QuizService) CreateQuiz(ctx context.Context, roomId string, quiz []mode
 		return "", err
 	}
 
-	err = s.roomRepo.AddQuiz(ctx, roomId, id)
-	if err != nil {
-		return id, err
-	}
-
 	return id, nil
 }
 

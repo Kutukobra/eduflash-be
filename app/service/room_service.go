@@ -76,3 +76,7 @@ func (s *RoomService) GetQuizzesByRoomId(ctx context.Context, roomId string) ([]
 
 	return rooms, nil
 }
+
+func (s *RoomService) AddQuiz(ctx context.Context, roomId string, quizId string) error {
+	return s.repo.AddQuiz(ctx, roomId, quizId)
+}

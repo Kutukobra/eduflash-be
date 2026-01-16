@@ -134,3 +134,27 @@ func (h *RoomHandler) GetQuizzesByRoomId(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"quizzes": quizzes})
 }
+
+func (h *RoomHandler) AddQuiz(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	var requestData struct {
+		QuizId string `json:"quizId" binding:"required"`
+	}
+
+	roomId := c.Param("roomId")
+
+	if err := c.ShouldBindJSON(&requestData); err != nil || roomId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body."})
+		return
+	}
+
+	err := h.serv.AddQuiz(ctx, roomId, requestData.QuizId)
+	if err != nil {
+		c.Error(err)
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
