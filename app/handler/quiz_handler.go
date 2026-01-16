@@ -72,7 +72,7 @@ func (h *QuizHandler) SubmitScore(c *gin.Context) {
 
 	var requestData struct {
 		StudentName string  `json:"studentName" binding:"required"`
-		Score       float32 `json:"score" binding:"required"`
+		Score       float32 `json:"score"`
 	}
 
 	quizId := c.Param("quizId")
