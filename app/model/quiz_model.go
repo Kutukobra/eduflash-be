@@ -17,3 +17,8 @@ type Quiz struct {
 	ID      string      `json:"id"`
 	Content QuizContent `json:"content"`
 }
+
+type StudentScores struct {
+	StudentName string  `json:"studentName"`
+	Score       float32 `json:"score"`
+}

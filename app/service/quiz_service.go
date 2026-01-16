@@ -37,3 +37,7 @@ func (s *QuizService) GetQuizById(ctx context.Context, id string) ([]model.QuizC
 func (s *QuizService) SubmitScore(ctx context.Context, quizId string, studentName string, score float32) error {
 	return s.quizRepo.SubmitScore(ctx, quizId, studentName, score)
 }
+
+func (s *QuizService) GetQuizScores(ctx context.Context, quizId string) ([]model.StudentScores, error) {
+	return s.quizRepo.GetQuizScores(ctx, quizId)
+}

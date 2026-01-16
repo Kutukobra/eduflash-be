@@ -93,3 +93,18 @@ func (h *QuizHandler) SubmitScore(c *gin.Context) {
 
 	c.Status(http.StatusOK)
 }
+
+func (h *QuizHandler) GetQuizScores(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	quizId := c.Param("quizId")
+
+	scores, err := h.serv.GetQuizScores(ctx, quizId)
+	if err != nil {
+		c.Error(err)
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"students": scores})
+}

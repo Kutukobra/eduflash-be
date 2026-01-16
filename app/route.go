@@ -41,6 +41,8 @@ func (a *App) Routes(router *gin.Engine) {
 			quiz.GET("/:quizId", a.quizHandler.GetQuizById)
 			//BODY {studentName, score}
 			quiz.POST("/:quizId/submit", a.quizHandler.SubmitScore)
+			//
+			quiz.GET("/:quizId/scores", a.quizHandler.GetQuizScores)
 		}
 	}
 }

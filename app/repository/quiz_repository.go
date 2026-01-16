@@ -12,6 +12,7 @@ type QuizRepository interface {
 	CreateQuiz(ctx context.Context, quiz []model.QuizContent) (string, error)
 	GetQuizById(ctx context.Context, id string) ([]model.QuizContent, error)
 	SubmitScore(ctx context.Context, quizId string, studentName string, score float32) error
+	GetQuizScores(ctx context.Context, quizId string) ([]model.StudentScores, error)
 }
 
 type PGQuizRepository struct {
@@ -64,4 +65,29 @@ func (r *PGQuizRepository) SubmitScore(ctx context.Context, quizId string, stude
 	_, err := r.driver.Exec(ctx, query, quizId, studentName, score)
 
 	return err
+}
+
+func (r *PGQuizRepository) GetQuizScores(ctx context.Context, quizId string) ([]model.StudentScores, error) {
+	query := `SELECT student_name, score FROM student_scores WHERE quiz_id = $1`
+
+	rows, err := r.driver.Query(ctx, query, quizId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var scores []model.StudentScores
+	for rows.Next() {
+		var score model.StudentScores
+		if err := rows.Scan(&score.StudentName, &score.Score); err != nil {
+			return nil, err
+		}
+		scores = append(scores, score)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return scores, nil
 }
