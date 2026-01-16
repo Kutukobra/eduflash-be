@@ -59,11 +59,20 @@ func (s *RoomService) JoinRoom(ctx context.Context, roomId string, studentName s
 	return roomData, nil
 }
 
-func (s *RoomService) GetStudentsByRoomId(ctx context.Context, room_id string) ([]string, error) {
-	students, err := s.repo.GetStudentsByRoomId(ctx, room_id)
+func (s *RoomService) GetStudentsByRoomId(ctx context.Context, roomId string) ([]string, error) {
+	students, err := s.repo.GetStudentsByRoomId(ctx, roomId)
 	if err != nil {
 		return nil, err
 	}
 
 	return students, nil
+}
+
+func (s *RoomService) GetQuizzesByRoomId(ctx context.Context, roomId string) ([]string, error) {
+	rooms, err := s.repo.GetQuizzesByRoomId(ctx, roomId)
+	if err != nil {
+		return nil, err
+	}
+
+	return rooms, nil
 }

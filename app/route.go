@@ -29,6 +29,8 @@ func (a *App) Routes(router *gin.Engine) {
 			room.POST("/:roomId/join", a.roomHandler.JoinRoom)
 			//
 			room.GET("/:roomId/students", a.roomHandler.GetStudentsByRoomId)
+			//
+			room.GET("/:roomId/quizzes", a.roomHandler.GetQuizzesByRoomId)
 		}
 
 		quiz := api.Group("/quiz")

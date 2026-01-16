@@ -14,6 +14,7 @@ type RoomRepository interface {
 	JoinRoom(ctx context.Context, room_id string, student_name string) error
 	GetStudentsByRoomId(ctx context.Context, room_id string) ([]string, error)
 	AddQuiz(ctx context.Context, roomId string, quizId string) error
+	GetQuizzesByRoomId(ctx context.Context, roomId string) ([]string, error)
 }
 
 type PGRoomRepository struct {
@@ -124,4 +125,29 @@ func (r *PGRoomRepository) AddQuiz(ctx context.Context, roomId string, quizId st
 	}
 
 	return nil
+}
+
+func (r *PGRoomRepository) GetQuizzesByRoomId(ctx context.Context, roomId string) ([]string, error) {
+	query := `SELECT quiz_id FROM room_quiz WHERE room_id = $1`
+
+	rows, err := r.driver.Query(ctx, query, roomId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var quizzes []string
+	for rows.Next() {
+		var quizId string
+		if err := rows.Scan(&quizId); err != nil {
+			return nil, err
+		}
+		quizzes = append(quizzes, quizId)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return quizzes, nil
 }
