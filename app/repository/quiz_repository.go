@@ -79,7 +79,7 @@ func (r *PGQuizRepository) GetQuizScores(ctx context.Context, quizId string) ([]
 	var scores []model.StudentScores
 	for rows.Next() {
 		var score model.StudentScores
-		if err := rows.Scan(&score.StudentName, &score.Score); err != nil {
+		if err := rows.Scan(&score.Name, &score.Score); err != nil {
 			return nil, err
 		}
 		scores = append(scores, score)
