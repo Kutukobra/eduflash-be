@@ -128,7 +128,7 @@ func (r *PGRoomRepository) AddQuiz(ctx context.Context, roomId string, quizId st
 }
 
 func (r *PGRoomRepository) GetQuizzesByRoomId(ctx context.Context, roomId string) ([]string, error) {
-	query := `SELECT quiz_id FROM room_quiz WHERE room_id = $1`
+	query := `SELECT quiz_id FROM room_quiz WHERE room_id = $1 ORDER BY created_at DESC LIMIT 1`
 
 	rows, err := r.driver.Query(ctx, query, roomId)
 	if err != nil {
